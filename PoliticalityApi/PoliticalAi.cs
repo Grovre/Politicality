@@ -1,6 +1,8 @@
-﻿namespace PoliticalityApi;
+﻿using dotNS.Classes;
 
-public class PoliticalAi
+namespace PoliticalityApi;
+
+public abstract class PoliticalAi
 {
-    
+    public abstract IssueOption AnswerIssue(Issue issue, NationContext? context, out string reason);
 }
