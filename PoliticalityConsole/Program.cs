@@ -6,12 +6,12 @@ using System.Text.Json;
 using dotNS;
 using PoliticalityApi;
 
-Console.WriteLine("Should load? 1/0:");
+Console.WriteLine("Should load? (1/0):");
 var shouldLoad = Console.ReadLine()!.Contains('1');
 
-var apiKey = "";
-var username = "";
-var password = "";
+string apiKey;
+string username;
+string password;
 using var fs = File.Open("vars.json", FileMode.OpenOrCreate);
 
 if (shouldLoad)
@@ -38,11 +38,14 @@ else
     });
 }
 
-Trace.Assert(Array.TrueForAll([apiKey, username, password], string.IsNullOrWhiteSpace));
+Trace.Assert(!Array.TrueForAll([apiKey, username, password], string.IsNullOrWhiteSpace));
 
 var ai = new GoogleGemini(new(), apiKey);
 var p = new Politicality(
     new(username, password, username),
     ai);
 
-p.AnswerIssue(p.GetIssues()[0]);
+var issue = p.GetIssues()[0];
+var reason = p.AnswerIssue(issue, true, out _);
+p.WriteInFactBook($"Issue {issue.ID}: {issue.Title}", reason);
+Console.WriteLine(reason);

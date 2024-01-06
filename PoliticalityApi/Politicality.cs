@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Web;
 using System.Xml;
 using dotNS;
 using dotNS.Classes;
@@ -37,10 +38,14 @@ public class Politicality
         return issues;
     }
 
-    public string AnswerIssue(Issue issue)
+    public string AnswerIssue(Issue issue, bool continueAddressingAfterFailing, out bool succeeded)
     {
         var context = new NationContext(Api.GetNationInfo(_nsConfig.Username));
-        var option = _ai.AnswerIssue(issue, context, out var reason);
+        var option = _ai.AnswerIssue(issue, context, out var reason, out succeeded);
+        
+        if (!succeeded && !continueAddressingAfterFailing)
+            return reason;
+        
         var nodeList = Api.AddressIssue(issue, option);
         return reason;
     }
@@ -49,13 +54,8 @@ public class Politicality
     private static readonly HttpClient _httpClient = new();
     public void WriteInFactBook(string title, string text)
     {
-        title = title.Replace(" ", "%20");
-        if (!title.All(c => char.IsLetter(c) || c == '%'))
-            throw new ArgumentException("Title contains invalid characters");
-        
-        text = text.Replace(" ", "%20");
-        if (!text.All(c => char.IsLetter(c) || c == '%'))
-            throw new ArgumentException("Body contains invalid characters");
+        title = HttpUtility.UrlEncode(title);
+        text = HttpUtility.UrlEncode(text);
         
         var req = new HttpRequestMessage(HttpMethod.Get, $"https://www.nationstates.net/cgi-bin/api.cgi?nation={_nsConfig.Username}&c=dispatch&dispatch=add&title={title}&text={text}&category=1&subcategory=105&mode=prepare");
         if (Api.Pin == "-1")

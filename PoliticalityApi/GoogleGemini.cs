@@ -15,7 +15,7 @@ public class GoogleGemini : PoliticalAi
         _httpClient = httpClient;
     }
     
-    public override IssueOption AnswerIssue(Issue issue, NationContext? context, out string reason)
+    public override IssueOption AnswerIssue(Issue issue, NationContext? context, out string reason, out bool succeeded)
     {
         var uri = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}";
         var req = new HttpRequestMessage(HttpMethod.Post, uri);
@@ -39,6 +39,7 @@ public class GoogleGemini : PoliticalAi
                          "Explain why you selected it in the form of a presidential speech." +
                          "Make the choice a little absurd and silly without sarcasm." +
                          "Do not talk about budgeting." +
+                         "You cannot use hyphens (-)." +
                          "Begin the speech with \"[ID]My fellow \"\n\n" +
                          (context == null ? "" : $"CONTEXT:\n{JsonSerializer.Serialize(context)}\n\n") +
                          $"ISSUE:\n{issue.FormatIssueIntoPrompt()}\n" +
@@ -82,16 +83,25 @@ public class GoogleGemini : PoliticalAi
         var resp = _httpClient.Send(req);
         var content = resp.Content.ReadAsStringAsync().Result;
         var baseElement = JsonSerializer.Deserialize<JsonElement>(content);
-        var candidates = baseElement.GetProperty("candidates");
-        var c0 = candidates[0];
-        var contents = c0.GetProperty("content");
-        c0 = contents.GetProperty("parts");
-        c0 = c0[0];
-        var text = c0.GetProperty("text");
-        var speech = text.GetString() ?? string.Empty;
-        reason = speech;
+        try
+        {
+          var candidates = baseElement.GetProperty("candidates");
+          var c0 = candidates[0];
+          var contents = c0.GetProperty("content");
+          c0 = contents.GetProperty("parts");
+          c0 = c0[0];
+          var text = c0.GetProperty("text");
+          var speech = text.GetString() ?? string.Empty;
+          reason = speech;
+          succeeded = true;
+        }
+        catch (KeyNotFoundException)
+        {
+          succeeded = false;
+          reason = $"[{Random.Shared.Next(issue.Options.Length)}]Too based for Gemini, randomly chosen answer";
+        }
 
-        var selectedOptionId = speech.First(char.IsNumber) - '0';
+        var selectedOptionId = reason.First(char.IsNumber) - '0';
         var selectedOption = issue.Options.First(o => o.ID == selectedOptionId);
         return selectedOption;
     }
