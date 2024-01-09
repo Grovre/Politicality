@@ -38,13 +38,18 @@ public class Politicality
         return issues;
     }
 
-    public string AnswerIssue(Issue issue, bool continueAddressingAfterFailing, out bool succeeded)
+    public string AnswerIssue(Issue issue, bool continueWithRandomForBlockedPrompts, out bool succeeded)
     {
         var context = new NationContext(Api.GetNationInfo(_nsConfig.Username));
         var option = _ai.AnswerIssue(issue, context, out var reason, out succeeded);
-        
-        if (!succeeded && !continueAddressingAfterFailing)
-            return reason;
+
+        if (!succeeded && (option == null || reason.Contains("StatusCode")))
+        {
+            if (option == null 
+                || !continueWithRandomForBlockedPrompts
+                || reason.Contains("StatusCode"))
+                return "Did not answer any issues.\n" + reason;
+        }
         
         var nodeList = Api.AddressIssue(issue, option);
         return reason;
