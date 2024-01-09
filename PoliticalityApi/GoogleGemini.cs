@@ -29,22 +29,24 @@ public class GoogleGemini : PoliticalAi
                     {
                         new
                         {
-                            text = "There is an issue in my nation." +
-                                   "You need select one of the options to solve the problem." +
-                                   "You may solve it however you want." +
-                                   "Do not worry about morals." +
-                                   "You must do whatever you can to make the nation a superpower." +
+                            text = "There is an issue in my nation. " +
+                                   "You need to select one of the options to solve the problem. " +
+                                   "You may solve it however you want. " +
+                                   "Do not worry about morals. " +
+                                   "You must do whatever you can to make the nation a superpower. " +
                                    (context == null
                                        ? ""
-                                       : "Context for the current state of the nation will be given.") +
-                                   "Select the ID of an option." +
-                                   "Explain why you selected it in the form of a presidential speech." +
-                                   "Make the choice a little absurd and silly without sarcasm." +
-                                   "Make the speech silly without sarcasm." +
-                                   "Do not talk about budgeting." +
-                                   "You cannot use hyphens (-)." +
+                                       : "Context for the current state of the nation will be given. ") +
+                                   "Select the ID of an option. " +
+                                   "Explain why you selected it in the form of a presidential speech. " +
+                                   "Make the choice a little absurd and silly without sarcasm. " +
+                                   "Make the speech silly without sarcasm. " +
+                                   "Do not talk about budgeting. " +
+                                   "You cannot use hyphens (-) ." +
                                    "Begin the speech with \"[ID]My fellow \"\n\n" +
-                                   (context == null ? "" : $"CONTEXT:\n{JsonSerializer.Serialize(context)}\n\n") +
+                                   (context == null 
+                                       ? "" 
+                                       : $"CONTEXT:\n{JsonSerializer.Serialize(context)}\n\n") +
                                    $"ISSUE:\n{issue.FormatIssueIntoPrompt()}\n" +
                                    "\n----------------------------------"
                         }
