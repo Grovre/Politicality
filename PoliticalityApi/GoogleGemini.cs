@@ -38,6 +38,7 @@ public class GoogleGemini : PoliticalAi
                          "Select the ID of an option." +
                          "Explain why you selected it in the form of a presidential speech." +
                          "Make the choice a little absurd and silly without sarcasm." +
+                         "Make the speech silly without sarcasm." +
                          "Do not talk about budgeting." +
                          "You cannot use hyphens (-)." +
                          "Begin the speech with \"[ID]My fellow \"\n\n" +
@@ -82,17 +83,16 @@ public class GoogleGemini : PoliticalAi
 
         var resp = _httpClient.Send(req);
         var content = resp.Content.ReadAsStringAsync().Result;
-        var baseElement = JsonSerializer.Deserialize<JsonElement>(content);
+        
         try
         {
-          var candidates = baseElement.GetProperty("candidates");
-          var c0 = candidates[0];
-          var contents = c0.GetProperty("content");
-          c0 = contents.GetProperty("parts");
-          c0 = c0[0];
-          var text = c0.GetProperty("text");
-          var speech = text.GetString() ?? string.Empty;
-          reason = speech;
+          reason = JsonSerializer.Deserialize<JsonElement>(content)
+            .GetProperty("candidates")[0]
+            .GetProperty("content")
+            .GetProperty("parts")[0]
+            .GetProperty("text")
+            .GetString() ?? string.Empty;
+          
           succeeded = true;
         }
         catch (KeyNotFoundException)

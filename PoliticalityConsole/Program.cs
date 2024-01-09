@@ -7,7 +7,7 @@ using dotNS;
 using PoliticalityApi;
 
 Console.WriteLine("Should load? (1/0):");
-var shouldLoad = Console.ReadLine()!.Contains('1');
+var shouldLoad = true; // Console.ReadLine()!.Contains('1');
 
 string apiKey;
 string username;
@@ -45,7 +45,10 @@ var p = new Politicality(
     new(username, password, username),
     ai);
 
+Console.WriteLine("Retrieving issues");
 var issue = p.GetIssues()[0];
+Console.WriteLine("Reasoning with AI and answering the nation");
 var reason = p.AnswerIssue(issue, true, out _);
-p.WriteInFactBook($"Issue {issue.ID}: {issue.Title}", reason);
 Console.WriteLine(reason);
+p.WriteInFactBook($"Issue {issue.ID}: {issue.Title}", reason);
+Console.WriteLine("Wrote in fact book");
