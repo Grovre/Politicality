@@ -12,6 +12,9 @@ public class NationContext
     public string Influence { get; }
     public string Motto { get; }
     public string Population { get; }
+    public string DemonymAdjective { get; }
+    public string DemonymNoun { get; }
+    public string DemonymNounPlural { get; }
     public string FullName { get; }
     public string Religion { get; }
     public double TaxRate { get; }
@@ -28,6 +31,9 @@ public class NationContext
         Influence = nationInfo.Influence;
         Motto = nationInfo.Motto;
         Population = nationInfo.Population.ToString();
+        DemonymAdjective = nationInfo.Demonym1;
+        DemonymNoun = nationInfo.Demonym2;
+        DemonymNounPlural = nationInfo.Demonym2Plural;
         FullName = nationInfo.FullName;
         Religion = nationInfo.Religion;
         TaxRate = nationInfo.Tax;
