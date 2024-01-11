@@ -29,7 +29,7 @@ public class GoogleGemini : PoliticalAi
                     {
                         new
                         {
-                            text = "There is an issue in my nation. " +
+                            text = $"There is an issue in my nation{(context == null ? ". " : $", {context.FullName}")}. " +
                                    "You need to select one of the options to solve the problem. " +
                                    "You may solve it however you want. " +
                                    "Do not worry about morals. " +
@@ -41,6 +41,7 @@ public class GoogleGemini : PoliticalAi
                                    "Explain why you selected it in the form of a presidential speech. " +
                                    "Make the choice a little absurd and silly without sarcasm. " +
                                    "Make the speech silly without sarcasm. " +
+                                   "Do not mention America. " + // lol issue 236 the AI thought it was America
                                    "Do not talk about budgeting. " +
                                    "You cannot use hyphens (-) ." +
                                    "Begin the speech with \"[ID]My fellow \"\n\n" +
