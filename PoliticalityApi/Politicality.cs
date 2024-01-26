@@ -8,6 +8,7 @@ using System.Web;
 using System.Xml;
 using dotNS;
 using dotNS.Classes;
+using PoliticalityApi.Ai;
 
 namespace PoliticalityApi;
 
@@ -38,18 +39,10 @@ public class Politicality
         return issues;
     }
 
-    public string AnswerIssue(Issue issue, bool continueWithRandomForBlockedPrompts, out bool succeeded)
+    public string AnswerIssue(Issue issue)
     {
         var context = new NationContext(Api.GetNationInfo(_nsConfig.Username));
-        var option = _ai.AnswerIssue(issue, context, out var reason, out succeeded);
-
-        if (!succeeded && (option == null || reason.Contains("StatusCode")))
-        {
-            if (option == null 
-                || !continueWithRandomForBlockedPrompts
-                || reason.Contains("StatusCode"))
-                return "Did not answer any issues.\n" + reason;
-        }
+        var (option, reason) = _ai.GetIssueAnswer(issue, context);
         
         var nodeList = Api.AddressIssue(issue, option);
         return reason;
@@ -62,7 +55,7 @@ public class Politicality
         title = HttpUtility.UrlEncode(title);
         text = HttpUtility.UrlEncode(text);
         
-        var req = new HttpRequestMessage(HttpMethod.Get, $"https://www.nationstates.net/cgi-bin/api.cgi?nation={_nsConfig.Username}&c=dispatch&dispatch=add&title={title}&text={text}&category=1&subcategory=105&mode=prepare");
+        var req = new HttpRequestMessage(HttpMethod.Get, $"https://www.nationstates.net/cgi-bin/api.cgi?nation={_nsConfig.Username}&c=dispatch&dispatch=add&title={title}&text={text}&category=5&subcategory=545&mode=prepare");
         if (Api.Pin == "-1")
             Api.UpdatePin(_nsConfig.Username, _nsConfig.Password);
         req.Headers.Add("X-Pin", Api.Pin);
@@ -78,7 +71,9 @@ public class Politicality
             req.RequestUri!.AbsoluteUri.Replace("mode=prepare", "mode=execute") + $"&token={token}");
         req.Headers.UserAgent.Add(new(_nsConfig.Username, "v1"));
         req.Headers.Add("X-Pin", Api.Pin);
-        _httpClient.Send(req).EnsureSuccessStatusCode();
+        resp = _httpClient.Send(req);
+        content = resp.Content.ReadAsStringAsync().Result;
+        resp.EnsureSuccessStatusCode();
 
         // "nation=testlandia&c=dispatch&dispatch=add&title=Test%20Dispatch&text=Hello%20there.&category=1&subcategory=105&mode=execute&token=1234567890abcdefg"
     }
