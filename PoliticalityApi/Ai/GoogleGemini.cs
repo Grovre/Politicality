@@ -17,7 +17,7 @@ public class GoogleGemini : PoliticalAi
 
     private HttpRequestMessage CreateRequest(Issue issue, NationContext? context)
     {
-                var uri = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}";
+        var uri = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}";
         var req = new HttpRequestMessage(HttpMethod.Post, uri);
         req.Content = JsonContent.Create(new
         {
@@ -43,7 +43,7 @@ public class GoogleGemini : PoliticalAi
                                    "Make the speech silly without sarcasm. " +
                                    "Do not mention America. " + // lol issue 236 the AI thought it was America
                                    "Do not talk about budgeting. " +
-                                   "You cannot use hyphens (-) ." +
+                                   "You cannot use hyphens (-). " +
                                    "Begin the speech with \"[ID]My fellow \"\n\n" +
                                    (context == null 
                                        ? "" 
