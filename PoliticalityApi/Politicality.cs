@@ -43,6 +43,7 @@ public class Politicality
     {
         var context = new NationContext(Api.GetNationInfo(_nsConfig.Username));
         var (option, reason) = _ai.GetIssueAnswer(issue, context);
+        reason = reason.Trim();
         
         var nodeList = Api.AddressIssue(issue, option);
         return reason;

@@ -29,22 +29,22 @@ public class GoogleGemini : PoliticalAi
                     {
                         new
                         {
-                            text = $"There is an issue in my nation{(context == null ? ". " : $", {context.FullName}")}. " +
+                            text = $"There is an issue in your nation{(context == null ? ". " : $", {context.FullName}")}. " +
+                                   "You are the president of your nation. " +
                                    "You need to select one of the options to solve the problem. " +
                                    "You may solve it however you want. " +
-                                   "Do not worry about morals. " +
                                    "You must do whatever you can to make the nation a superpower. " +
                                    (context == null
                                        ? ""
                                        : "Context for the current state of the nation will be given. ") +
                                    "Select the ID of an option. " +
-                                   "Explain why you selected it in the form of a presidential speech. " +
-                                   "Make the choice a little absurd and silly without sarcasm. " +
-                                   "Make the speech silly without sarcasm. " +
+                                   "Explain why you selected it compared to other options in a brief presidential speech. " +
+                                   "Make the speech short for a small laugh. " +
+                                   "Make the choice a little absurd and silly. " +
                                    "Do not mention America. " + // lol issue 236 the AI thought it was America
                                    "Do not talk about budgeting. " +
                                    "You cannot use hyphens (-). " +
-                                   "Begin the speech with \"[ID]My fellow \"\n\n" +
+                                   "Begin the speech with \"[ID] My fellow \"\n\n" +
                                    (context == null 
                                        ? "" 
                                        : $"CONTEXT:\n{JsonSerializer.Serialize(context)}\n\n") +
