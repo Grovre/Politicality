@@ -15,7 +15,8 @@ public class GoogleGemini : PoliticalAi
         _httpClient = httpClient;
     }
 
-    private HttpRequestMessage CreateRequest(Issue issue, NationContext? context)
+    private HttpRequestMessage CreateRequest(Issue issue, NationContext? context, double temperature, int topK, double topP,
+        int maxOutputTokens)
     {
         var uri = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}";
         var req = new HttpRequestMessage(HttpMethod.Post, uri);
@@ -56,10 +57,10 @@ public class GoogleGemini : PoliticalAi
             },
             generationConfig = new
             {
-                temperature = 0.85,
-                topK = 1,
-                topP = 1,
-                maxOutputTokens = 2048,
+                temperature,
+                topK,
+                topP,
+                maxOutputTokens,
                 stopSequences = Array.Empty<object>()
             },
             safetySettings = new[]
@@ -90,9 +91,10 @@ public class GoogleGemini : PoliticalAi
         return req;
     }
 
-    public override PoliticalAiAnswer GetIssueAnswer(Issue issue, NationContext? context)
+    public override PoliticalAiAnswer GetIssueAnswer(Issue issue, NationContext? context, double temperature = 0.85, int topK = 1, double topP = 1D,
+        int maxOutputTokens = 2048)
     {
-        var req = CreateRequest(issue, context);
+        var req = CreateRequest(issue, context, temperature, topK, topP, maxOutputTokens);
         var resp = _httpClient.Send(req).EnsureSuccessStatusCode();
         
         var content = resp.Content.ReadAsStringAsync().Result;

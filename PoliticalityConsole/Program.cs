@@ -49,7 +49,7 @@ var p = new Politicality(
 Console.WriteLine("Retrieving issues");
 var issue = p.GetIssues()[0];
 Console.WriteLine("Reasoning with AI and answering the nation");
-var reason = p.AnswerIssue(issue);
+var reason = p.AnswerIssue(issue, 0.825, 4, 0.9, 2000);
 Console.WriteLine(reason);
 p.WriteInFactBook($"Issue {issue.ID}: {issue.Title}", reason);
 Console.WriteLine("Wrote in fact book");

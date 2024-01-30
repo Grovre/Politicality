@@ -39,10 +39,10 @@ public class Politicality
         return issues;
     }
 
-    public string AnswerIssue(Issue issue)
+    public string AnswerIssue(Issue issue, double temperature, int topK, double topP, int maxOutputTokens)
     {
         var context = new NationContext(Api.GetNationInfo(_nsConfig.Username));
-        var (option, reason) = _ai.GetIssueAnswer(issue, context);
+        var (option, reason) = _ai.GetIssueAnswer(issue, context, temperature, topK, topP, maxOutputTokens);
         reason = reason.Trim();
         
         var nodeList = Api.AddressIssue(issue, option);
