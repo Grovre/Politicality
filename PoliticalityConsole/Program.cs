@@ -8,7 +8,7 @@ using PoliticalityApi;
 using PoliticalityApi.Ai;
 
 Console.WriteLine("Should load? (1/0):");
-var shouldLoad = true; // Console.ReadLine()!.Contains('1');
+var shouldLoad = Console.ReadLine()!.Contains('1');
 
 string apiKey;
 string username;

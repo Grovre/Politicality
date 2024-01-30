@@ -9,13 +9,14 @@ using System.Xml;
 using dotNS;
 using dotNS.Classes;
 using PoliticalityApi.Ai;
+using PoliticalityApi.Exceptions;
 
 namespace PoliticalityApi;
 
 public class Politicality
 {
-    private NationStatesConfiguration _nsConfig;
-    private PoliticalAi _ai;
+    private readonly NationStatesConfiguration _nsConfig;
+    private readonly PoliticalAi _ai;
     public DotNS Api { get; }
 
     public Politicality(NationStatesConfiguration nsConfig, PoliticalAi aiConfig)
@@ -34,7 +35,7 @@ public class Politicality
         var issues = Api.GetPrivateNation().Issues;
         
         if (issues == null)
-            throw new NullReferenceException("dotNS returned null issue array");
+            throw new NoIssuesException("dotNS returned null issue array");
 
         return issues;
     }
@@ -45,11 +46,11 @@ public class Politicality
         var (option, reason) = _ai.GetIssueAnswer(issue, context, temperature, topK, topP, maxOutputTokens);
         reason = reason.Trim();
         
+        // For debugging purposes to read response
         var nodeList = Api.AddressIssue(issue, option);
         return reason;
     }
 
-    // TODO: PR DotNS and make command api public
     private static readonly HttpClient _httpClient = new();
     public void WriteInFactBook(string title, string text)
     {
@@ -73,6 +74,7 @@ public class Politicality
         req.Headers.UserAgent.Add(new(_nsConfig.Username, "v1"));
         req.Headers.Add("X-Pin", Api.Pin);
         resp = _httpClient.Send(req);
+        // For debugging purposes to view content
         content = resp.Content.ReadAsStringAsync().Result;
         resp.EnsureSuccessStatusCode();
 

@@ -91,8 +91,8 @@ public class GoogleGemini : PoliticalAi
         return req;
     }
 
-    public override PoliticalAiAnswer GetIssueAnswer(Issue issue, NationContext? context, double temperature = 0.85, int topK = 1, double topP = 1D,
-        int maxOutputTokens = 2048)
+    public override PoliticalAiAnswer GetIssueAnswer(Issue issue, NationContext? context, double temperature, int topK, double topP,
+        int maxOutputTokens)
     {
         var req = CreateRequest(issue, context, temperature, topK, topP, maxOutputTokens);
         var resp = _httpClient.Send(req).EnsureSuccessStatusCode();
