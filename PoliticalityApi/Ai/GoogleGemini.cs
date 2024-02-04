@@ -103,11 +103,12 @@ public class GoogleGemini : PoliticalAi
             .GetProperty("content")
             .GetProperty("parts")[0]
             .GetProperty("text")
-            .GetString() ?? string.Empty;
+            .GetString()?
+            .Trim() ?? string.Empty;
 
         var selectedOptionId = reason.First(char.IsNumber) - '0';
         var selectedOption = issue.Options.First(o => o.ID == selectedOptionId);
 
-        return new PoliticalAiAnswer(selectedOption, reason);
+        return new PoliticalAiAnswer(issue, selectedOption, reason);
     }
 }

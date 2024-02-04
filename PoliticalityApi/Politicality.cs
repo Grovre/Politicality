@@ -40,15 +40,18 @@ public class Politicality
         return issues;
     }
 
-    public string AnswerIssue(Issue issue, double temperature, int topK, double topP, int maxOutputTokens)
+    public PoliticalAiAnswer GetAiAnswer(Issue issue, double temperature, int topK, double topP, int maxOutputTokens)
     {
         var context = new NationContext(Api.GetNationInfo(_nsConfig.Username));
-        var (option, reason) = _ai.GetIssueAnswer(issue, context, temperature, topK, topP, maxOutputTokens);
-        reason = reason.Trim();
-        
-        // For debugging purposes to read response
-        var nodeList = Api.AddressIssue(issue, option);
-        return reason;
+        var answer = _ai.GetIssueAnswer(issue, context, temperature, topK, topP, maxOutputTokens);
+        return answer;
+    }
+
+    public bool AnswerIssue(PoliticalAiAnswer answer)
+    {
+        // initialized local for debugging purposes
+        var nodeList = Api.AddressIssue(answer.Issue, answer.SelectedOption);
+        return true;
     }
 
     private static readonly HttpClient _httpClient = new();

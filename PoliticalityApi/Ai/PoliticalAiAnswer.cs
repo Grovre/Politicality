@@ -2,6 +2,6 @@
 
 namespace PoliticalityApi.Ai;
 
-public record PoliticalAiAnswer(IssueOption SelectedOption, string Reason)
+public record PoliticalAiAnswer(Issue Issue, IssueOption SelectedOption, string Reason)
 {
 }
