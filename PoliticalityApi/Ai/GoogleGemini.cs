@@ -8,11 +8,18 @@ public class GoogleGemini : PoliticalAi
 {
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
+    public List<string> PromptAdditions { get; }
 
-    public GoogleGemini(HttpClient httpClient, string apiKey)
+    public GoogleGemini(HttpClient httpClient, string apiKey, params string[]? promptAdditions)
     {
         _apiKey = apiKey;
         _httpClient = httpClient;
+        PromptAdditions = promptAdditions?.Select(s => s.Trim()).ToList() ?? [];
+    }
+
+    public GoogleGemini(HttpClient httpClient, string apiKey, IEnumerable<string> promptAdditions) : this(httpClient, apiKey)
+    {
+        PromptAdditions = promptAdditions.Select(s => s.Trim()).ToList();
     }
 
     private HttpRequestMessage CreateRequest(Issue issue, NationContext? context, double temperature, int topK, double topP,
@@ -20,6 +27,30 @@ public class GoogleGemini : PoliticalAi
     {
         var uri = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}";
         var req = new HttpRequestMessage(HttpMethod.Post, uri);
+        var text = $"There is an issue in your nation{(context == null ? ". " : $", {context.FullName}")}. " +
+                   "You are the president of your nation. " +
+                   "You need to select one of the options to solve the problem. " +
+                   "You may solve it however you want. " +
+                   "You must do whatever you can to make the nation a superpower. " +
+                   (context == null
+                       ? ""
+                       : "Context for the current state of the nation will be given. " +
+                         "You may use the context to base your decisions off of. ") +
+                   "Select the ID of an option. " +
+                   "Start by explaining what the issue is. " +
+                   "Explain what each option was, including the one you chose. " +
+                   "Explain last in a separate paragraph why you chose the option you did. " +
+                   "Make the choice a little absurd and silly. " +
+                   "Do not mention America. " + // lol issue 236 the AI thought it was America
+                   "You cannot use hyphens (-). " +
+                   string.Join(". ", PromptAdditions) + ". " +
+                   "Begin the speech with \"[ID] My fellow \"\n\n" +
+                   (context == null
+                       ? ""
+                       : $"CONTEXT:\n{JsonSerializer.Serialize(context)}\n\n") +
+                   $"ISSUE:\n{issue.FormatIssueIntoPrompt()}\n" +
+                   "\n----------------------------------";
+        
         req.Content = JsonContent.Create(new
         {
             contents = new[]
@@ -30,27 +61,7 @@ public class GoogleGemini : PoliticalAi
                     {
                         new
                         {
-                            text = $"There is an issue in your nation{(context == null ? ". " : $", {context.FullName}")}. " +
-                                   "You are the president of your nation. " +
-                                   "You need to select one of the options to solve the problem. " +
-                                   "You may solve it however you want. " +
-                                   "You must do whatever you can to make the nation a superpower. " +
-                                   (context == null
-                                       ? ""
-                                       : "Context for the current state of the nation will be given. ") +
-                                   "Select the ID of an option. " +
-                                   "Explain why you selected it compared to other options in a brief presidential speech. " +
-                                   "Make the speech short for a small laugh. " +
-                                   "Make the choice a little absurd and silly. " +
-                                   "Do not mention America. " + // lol issue 236 the AI thought it was America
-                                   "Do not talk about budgeting. " +
-                                   "You cannot use hyphens (-). " +
-                                   "Begin the speech with \"[ID] My fellow \"\n\n" +
-                                   (context == null 
-                                       ? "" 
-                                       : $"CONTEXT:\n{JsonSerializer.Serialize(context)}\n\n") +
-                                   $"ISSUE:\n{issue.FormatIssueIntoPrompt()}\n" +
-                                   "\n----------------------------------"
+                            text
                         }
                     }
                 }
@@ -95,9 +106,10 @@ public class GoogleGemini : PoliticalAi
         int maxOutputTokens)
     {
         var req = CreateRequest(issue, context, temperature, topK, topP, maxOutputTokens);
-        var resp = _httpClient.Send(req).EnsureSuccessStatusCode();
-        
+        var resp = _httpClient.Send(req);
         var content = resp.Content.ReadAsStringAsync().Result;
+        resp.EnsureSuccessStatusCode();
+        
         var reason = JsonSerializer.Deserialize<JsonElement>(content)
             .GetProperty("candidates")[0]
             .GetProperty("content")

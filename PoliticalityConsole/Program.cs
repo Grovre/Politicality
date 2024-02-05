@@ -41,10 +41,9 @@ else
 
 Trace.Assert(!Array.TrueForAll([apiKey, username, password], string.IsNullOrWhiteSpace));
 
-var ai = new GoogleGemini(new(), apiKey);
+var ai = new GoogleGemini(new(), apiKey, "The response must be attractive and interesting to the reader");
 var p = new Politicality(
-    new(username, password, username),
-    ai);
+    new(username, password, username), ai);
 
 Console.WriteLine("Retrieving issues");
 var issues = p.GetIssues();

@@ -49,6 +49,8 @@ public class Politicality
 
     public bool AnswerIssue(PoliticalAiAnswer answer)
     {
+        // in case x-pin becomes invalid after a stupid short amount of time
+        Api.UpdatePin(_nsConfig.Username, _nsConfig.Password);
         // initialized local for debugging purposes
         var nodeList = Api.AddressIssue(answer.Issue, answer.SelectedOption);
         return true;
